@@ -84,14 +84,6 @@ Shoes.app title: 'Eject', width: 550, height: 200 do
             end
             i = 0
             @array.delete(@array.last())
-            information = `lspci -nn`
-            information.split("\n").each do |item|
-              @array.each do |device|
-                if item.include?device[:name]
-                  item.split(':')[2]
-                end
-              end
-            end
             @array.each do |item|
               item[:guid] = @uuid[i]
               i += 1
