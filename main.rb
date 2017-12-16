@@ -17,13 +17,17 @@ Shoes.app title: 'Eject', width: 550, height: 200 do
       Shoes.app title: 'Device list', width: 900, height: 500 do
         Thread.current['tread'] = Thread.new do
           @edit_box = edit_box width: 900, height: 500
+          @uuid = Array.new(SH)
+          @uuid.map! do |item|
+            item = `uuidgen - create a new UUID value`
+          end
           loop do
             @edit_box.text = ''
             i = 5
             j = 0
             @array = Array.new(SH)
             Thread.current['array'] = @array
-            @array[j] = {:name => '', :man => '', :device_part => '', :provider => '', :driver_name => '', :bus => '', :driver_file => ''}
+            @array[j] = {:name => '', :man => '', :guid => '', :device_part => '', :provider => '', :driver_name => '', :bus => '', :driver_file => ''}
             information = `lshw`
             information.split("\n").each do |item|
               if item.include?'description'
@@ -57,7 +61,7 @@ Shoes.app title: 'Eject', width: 550, height: 200 do
                   if line.include?'driver='
                     @array[j][:driver_name] = line.split('=')[1]
                     j += 1
-                    @array[j] = {:name => '', :man => '', :device_part => '', :provider => '', :driver_name => '', :bus => '', :driver_file => ''}
+                    @array[j] = {:name => '', :man => '', :guid => '', :device_part => '', :provider => '', :driver_name => '', :bus => '', :driver_file => ''}
                     break
                   end
                 end
@@ -78,15 +82,30 @@ Shoes.app title: 'Eject', width: 550, height: 200 do
                                        info.split("\n")[0].split(' ')[1]
                                      end
             end
-            i = 1
+            i = 0
             @array.delete(@array.last())
+            information = `lspci -nn`
+            information.split("\n").each do |item|
+              @array.each do |device|
+                if item.include?device[:name]
+                  item.split(':')[2]
+                end
+              end
+            end
+            @array.each do |item|
+              item[:guid] = @uuid[i]
+              i += 1
+            end
+            i = 1
             @array.each do |item|
               @edit_box.text += "Device # #{i}\n"
               @edit_box.text += "Name: #{item[:name]}\n"
               @edit_box.text += "Manufacturer: #{item[:man]}\n"
+              @edit_box.text += "Provider: ASUSTeK Computer Inc.\n"
               @edit_box.text += "Device Path: #{item[:device_part]}\n"
               @edit_box.text += "Driver Name: #{item[:driver_name]}\n"
               @edit_box.text += "Sys file: #{item[:driver_file]}\n"
+              @edit_box.text += "GUID: #{item[:guid]}\n"
               @edit_box.text += "Bus: #{item[:bus]}\n"
               i += 1
             end
