@@ -11,6 +11,8 @@ Shoes.app title: 'Eject', width: 550, height: 200 do
   para 'Input device', margin: 10
   @line = edit_line width: 400, margin: 10
   @item = button 'Disconnect', margin: 10
+  @linee = edit_line width: 400, margin: 10
+  @itemm = button 'Connect', margin: 10
   @buttom = button 'Get list', margin: 10
   @buttom.click do
   @i = Thread.new do
@@ -21,7 +23,6 @@ Shoes.app title: 'Eject', width: 550, height: 200 do
           @uuid.map! do |item|
             item = `uuidgen - create a new UUID value`
           end
-          loop do
             @edit_box.text = ''
             i = 5
             j = 0
@@ -98,11 +99,8 @@ Shoes.app title: 'Eject', width: 550, height: 200 do
               @edit_box.text += "Driver Name: #{item[:driver_name]}\n"
               @edit_box.text += "Sys file: #{item[:driver_file]}\n"
               @edit_box.text += "GUID: #{item[:guid]}\n"
-              @edit_box.text += "Bus: #{item[:bus]}\n"
               i += 1
             end
-            sleep 20
-          end
         end
       end
     end
@@ -114,7 +112,16 @@ Shoes.app title: 'Eject', width: 550, height: 200 do
         @time = item[:device_part]
         Dir.chdir("/sys/bus/#{item[:bus]}/drivers/#{item[:driver_name]}")
         `echo #{item[:device_part]} | sudo tee -a unbind`
-        sleep 5
+        break
+      end
+    end
+  end
+  @itemm.click do
+    name_device = @linee.text
+    @i['tread']['array'].each do |item|
+      if item[:name] == name_device
+        @time = item[:device_part]
+        Dir.chdir("/sys/bus/#{item[:bus]}/drivers/#{item[:driver_name]}")
         `echo #{@time} | sudo tee -a bind`
         break
       end
